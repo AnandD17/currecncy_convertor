@@ -1,6 +1,7 @@
 "use client";
 import IconsCrissCross from "@/assets/IconsCrissCross";
 import Dropdown from "@/components/Dropdown";
+import useDebounce from "@/hooks/useDebounce";
 import { getCoinPrice } from "@/services/common";
 import { CRYPTO_CURRENCIES, FIAAT_CURRENCIES } from "@/utils/data";
 import { DropdownOption } from "@/utils/types";
@@ -20,14 +21,14 @@ export default function Home() {
 
   const intervalRef = useRef<number | null>(null);
 
-  const getData = async (val: number) => {
+  const getData = async (val: number, fiaat: string, crypto: string) => {
     if (!val) return;
 
     setLoading(true);
     try {
-      const res = await getCoinPrice(cryptoCurrency.value, fiatCurrency.value);
+      const res = await getCoinPrice(crypto, fiaat);
       if (res.length > 0) {
-        setResult(Number((val / res[0].current_price).toFixed(4)));
+        setResult(val / res[0].current_price);
       }
       setLoading(false);
     } catch (err) {
@@ -38,9 +39,21 @@ export default function Home() {
     }
   };
 
+  const fiatCurrencyRef = useRef(fiatCurrency.value);
+  const cryptoCurrencyRef = useRef(cryptoCurrency.value);
+
   useEffect(() => {
-    getData(amount);
-  }, [cryptoCurrency, fiatCurrency, amount]);
+    fiatCurrencyRef.current = fiatCurrency.value;
+    cryptoCurrencyRef.current = cryptoCurrency.value;
+  }, [fiatCurrency, cryptoCurrency]);
+
+  useDebounce({
+    callback: () => {
+      getData(amount, fiatCurrency.value, cryptoCurrency.value);
+    },
+    delay: 1000,
+    dependency: [cryptoCurrency, fiatCurrency, amount],
+  });
 
   useEffect(() => {
     if (intervalRef.current) {
@@ -48,7 +61,7 @@ export default function Home() {
     }
 
     intervalRef.current = window.setInterval(() => {
-      getData(amount);
+      getData(amount, fiatCurrencyRef.current, cryptoCurrencyRef.current);
     }, 30000);
 
     return () => {
@@ -67,17 +80,17 @@ export default function Home() {
         <div className="flex gap-4 items-center">
           <div className="w-[100px]">
             <Dropdown
-              options={CRYPTO_CURRENCIES}
-              selected={cryptoCurrency}
-              onChange={(value: DropdownOption) => setCryptoCurrency(value)}
+              options={FIAAT_CURRENCIES}
+              selected={fiatCurrency}
+              onChange={(value: DropdownOption) => setFiatCurrency(value)}
             />
           </div>
           <IconsCrissCross color="white" />
           <div className="w-[100px]">
             <Dropdown
-              options={FIAAT_CURRENCIES}
-              selected={fiatCurrency}
-              onChange={(value: DropdownOption) => setFiatCurrency(value)}
+              options={CRYPTO_CURRENCIES}
+              selected={cryptoCurrency}
+              onChange={(value: DropdownOption) => setCryptoCurrency(value)}
             />
           </div>
         </div>
