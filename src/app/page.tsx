@@ -100,13 +100,13 @@ export default function Home() {
             setAmount(parseFloat(e.target.value));
           }}
           type="text"
-          className="px-4 py-2 bg-transparent border border-gray-300 rounded-lg focus-visible:outline-none w-[500px]"
+          className="px-4 py-2 bg-transparent border border-gray-300 rounded-lg focus-visible:outline-none md:w-[500px] w-[200px]"
           placeholder="Enter amount to convert to USD into EUR"
         />
         {loading ? (
           <p className="mt-3">Loading...</p>
         ) : (
-          <p className={`mt-3 ${amount ? "visible" : "invisible"}`}>
+          <p className={`mt-3 px-4 ${amount ? "visible" : "invisible"}`}>
             Your {fiatCurrency.label} {amount} is worth{" "}
             <span className="text-purple-600">
               {result} {cryptoCurrency.label}
