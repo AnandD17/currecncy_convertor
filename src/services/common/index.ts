@@ -2,7 +2,7 @@ import { provider } from "../provider";
 const coinGeckoHeaders = {
   "Content-Type": "application/json",
   method: "GET",
-  "x-cg-pro-api-key": "CG-5hMaSksYsfcS7hVmGEUXMgvL",
+  "x-cg-pro-api-key": process.env.COIN_GECKO_API_KEY,
 };
 
 export const getCoinPrice = async (crypto: string, fiaat: string) => {
